@@ -63,7 +63,7 @@ class Playback:
 
 
     def debug(self):
-        print(self.stream.__repr__())
+        print(self.stream.get_time())
         print(self.pause)
 
     def stop(self):
