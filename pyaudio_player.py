@@ -40,7 +40,7 @@ class Playback:
     def play(self, song):
 
         # open ffmpegio's stream-reader
-        with ffmpegio.open(song, "ra", sample_fmt=self.sample_fmt, ac=self.ac, ar=self.ar) as f:
+        with ffmpegio.open(song, "ra", sample_fmt=self.sample_fmt, ac=self.ac, ar=self.ar, ss_in=20) as f:
 
             # define callback (2)
             def callback(_, nblk, *__):
