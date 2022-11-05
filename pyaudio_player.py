@@ -15,7 +15,11 @@ class Playback:
     sample_fmt = "s16"
     stream = None
     exited = threading.Event()
+    # keeps track of active time played in the song
     pause = 0
+    #
+    timer = 0
+    pause_list = []
 
     @contextmanager
     def pyaudio_stream(self, rate, channels, width=None, unsigned=False, format=None, *args, **kwargs):
@@ -38,9 +42,11 @@ class Playback:
             p.terminate()
 
     def play(self, song):
-
+        self.pause = time.time()
+        self.pause_list.append(time.time() - self.pause)
+        print(time.time() - self.pause)
         # open ffmpegio's stream-reader
-        with ffmpegio.open(song, "ra", sample_fmt=self.sample_fmt, ac=self.ac, ar=self.ar, ss_in=20) as f:
+        with ffmpegio.open(song, "ra", sample_fmt=self.sample_fmt, ac=self.ac, ar=self.ar, ss_in=sum(self.pause_list)) as f:  # sum(self.pause_list))\
 
             # define callback (2)
             def callback(_, nblk, *__):
@@ -58,16 +64,16 @@ class Playback:
             ) as stream:
                 # wait for stream to finish
                 while stream.is_active():
-                    self.pause = self.stream.get_time()
                     self.exited.wait(0.1)
 
 
     def debug(self):
         print(self.stream.get_time())
-        print(self.pause)
+        print(self.stream.is_active())
 
     def stop(self):
         print('stop?')
+        self.pause_list.append(time.time() - self.pause)
         self.stream.stop_stream()
         self.exited.clear()
 
